@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <title>File upload spring</title>
+</head>
+<body>
+    <header class="p-2 navbar bg-light w-100">
+        <nav class="d-flex flex-row w-100 justify-content-between">
+            <a class="navbar-brand w-50" href="#">
+                Spring Practice File Upload
+            </a>
+            <ul class="navbar-nav w-50 d-flex flex-row justify-content-end">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Linkedin </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Github</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <article class="d-flex flex-column justify-content-center align-items-center min-vh-100 main-container">
+        <!--<div class="alert alert-primary" role="alert">
+            Documentos subidos correctamente
+        </div>-->
+        <section class="file-upload card" style="margin:50px 0 50px 0;
+        width: 25rem;
+        height: 43rem !important;">
+            <section class="card-body d-flex flex-column">
+                <section class="header-card p-2">
+                    <div class="w-100 text-center">
+                        <header class="h3">Upload Files</header>
+                        <p>Upload documents you want to share with your team</p>
+                    </div>
+                </section>
+
+                <section class="d-flex flex-column justify-content-center align-items-center file-upload-container w-100 mt-2 p-2">
+                    <img class="mt-2 mb-3" th:src="@{/images/icons8-upload-64.png}" alt="upload-logo" id="upload-icon">
+                    <p>Drag and drop your files here</p>
+                    <span class="h5">OR</span>
+                    <label class="mb-2 mt-2 p-1 btn-send-file-form" for="file-btn">Browse files</label>
+                    <input multiple onchange="getFileNamesAndTypes()" style="display:none;" id="file-btn" type="file">
+                </section>
+
+                <section class="card p-2 files-to-handle d-flex flex-column w-100 mt-2 h-50">
+                    <small>Uploaded files</small>       
+                    <article class="scroller-files d-flex flex-column justify-content-center align-items-center">
+                       <span class="h4 label-no-files">There are not files loaded yet</span>
+                    </article>
+                </section>
+            </section>
+            <section class="text-center">
+                <button onclick="submitFilesWithProgressStatus()" class="btn btn-primary mb-1 submit-btn" type="submit">Upload files</button>
+            </section>
+        </section>
+    </article>
+
+    <script>
+        let fileProvider=document.getElementById('file-btn');
+
+        function createAlert(){
+            let mainCointainer=document.getElementsByClassName('file-upload')[0];
+            let divCont=document.createElement('div');
+            divCont.innerText="Files uploaded";
+            divCont.classList.add("alert", "alert-primary","alert-notify");
+            mainCointainer.prepend(divCont);
+        }
+
+        function destroyAlert(){
+            let alertToDissapear=document.getElementsByClassName('alert-notify')[0];
+            alertToDissapear.remove();
+        }
+
+
+        function getWordCardFileTemplate(name){
+            let cardFileTemplate=document.createElement('section');
+            cardFileTemplate.innerHTML=`<section class="card p-2 mt-2 w-100 d-flex flex-row justify-content-center align-items-center cards-files">
+                <img class="file-type-icons me-2" src="/images/icons8-microsoft-word-48.png" alt="">
+                    <div class="col w-75 d-flex flex-row">     
+                        <div class="w-75 d-flex flex-column">
+                            <p>${name}</p>
+                        </div>
+                        <div class="w-25 d-flex justify-content-center align-items-center">
+                            <img class="cancel-icon" src="/images/icons8-cancel-24.png" alt="" srcset="">
+                        </div>
+                    </div>
+            </section>`
+            return cardFileTemplate;
+        }
+
+        function getPdfCardFileTemplate(name){
+            let cardFileTemplate=document.createElement('section');
+            cardFileTemplate.innerHTML=`<section class="card p-2 mt-2 w-100 d-flex flex-row justify-content-center align-items-center cards-files">
+                <img class="file-type-icons me-2" src="/images/icons8-pdf-64.png" alt="">
+                    <div class="col w-75 d-flex flex-row">     
+                        <div class="w-75 d-flex flex-column">
+                            <p>${name}</p>
+                        </div>
+                        <div class="w-25 d-flex justify-content-center align-items-center">
+                            <img class="cancel-icon" src="/images/icons8-cancel-24.png" alt="" srcset="">
+                        </div>
+                    </div>
+            </section>`
+            return cardFileTemplate;
+        }
+
+        function getFileNamesAndTypes(){
+            let labelNoFiles=document.getElementsByClassName('label-no-files')[0];
+            let scrollerFiles=document.getElementsByClassName('scroller-files')[0];
+     
+            scrollerFiles.classList.remove('d-flex', 'flex-column', 'justify-content-center', 'align-items-center');
+            labelNoFiles.style.display='none';
+
+            if(fileProvider.files.length>1){
+                for(let i=0;i<fileProvider.files.length;i++){
+                    if(fileProvider.files.item(i).type==='application/pdf'){
+                        
+                        scrollerFiles.appendChild(getPdfCardFileTemplate(fileProvider.files.item(i).name));
+                    }else if(fileProvider.files.item(i).type==='application/vnd.openxmlformats-officedocument.wordprocessingml.document'){
+                        //let cardFilesTemplate=document.createElement('section');
+                        scrollerFiles.appendChild(getWordCardFileTemplate(fileProvider.files.item(i).name));
+                    }else{
+                        alert('solo puedes subir archivos word y pdf')
+                    }                
+                }
+            }else{
+                console.log(fileProvider.files)
+                if(fileProvider.files.item(0).type==='application/pdf'){
+                    //let cardFilesTemplate=document.createElement('section');
+                    scrollerFiles.appendChild(getPdfCardFileTemplate(fileProvider.files.item(0).name));
+                }else if(fileProvider.files.item(0).type==='application/vnd.openxmlformats-officedocument.wordprocessingml.document'){
+                    //let cardFilesTemplate=document.createElement('section');
+                    scrollerFiles.appendChild(getWordCardFileTemplate(fileProvider.files.item(0).name));    
+                }else{
+                    alert('solo puedes subir archivos word y pdf')
+                }
+            }
+        }
+
+        function restoreFileBoxState(){
+            let scrollerFiles=document.getElementsByClassName('scroller-files')[0];
+            scrollerFiles.replaceChildren();
+            scrollerFiles.classList.add('d-flex', 'flex-column', 'justify-content-center', 'align-items-center');
+            let labelNoFiles=document.createElement('span');
+            labelNoFiles.classList.add("h4", "label-no-files");
+            labelNoFiles.innerText="There are not files loaded yet"
+            scrollerFiles.appendChild(labelNoFiles);
+        }
+        
+        async function submitFilesWithProgressStatus(){
+            if(fileProvider.files.length>0){         
+                const progressBars=document.getElementsByClassName('submit-btn');
+                
+                const xhr = new XMLHttpRequest();
+                const formData=new FormData();
+
+                formData.append("documents",fileProvider.files.item(0));
+                formData.append("documents",fileProvider.files.item(1))
+                const success = await new Promise((resolve) => {
+                xhr.upload.addEventListener("progress", (event) => {
+                    if (event.lengthComputable) {
+                        console.log("upload progress:", event.loaded / event.total);
+                    }
+                });
+                xhr.addEventListener("progress", (event) => {
+                    if (event.lengthComputable) {
+                        console.log("download progress:", event.loaded / event.total);
+                    }
+                });
+                xhr.addEventListener("loadend", () => {
+                    resolve(xhr.readyState === 4 && xhr.status === 200);
+                });
+                xhr.open("POST", "http://localhost:8080/file/upload", true);
+                    //xhr.setRequestHeader("Content-Type", "multipart/form-data");
+                    xhr.send(formData);
+                });
+                console.log("success:", success);
+                fileProvider.value="";
+
+                if(success===true){
+                    restoreFileBoxState();
+                    createAlert();
+                    setTimeout(()=>{
+                        destroyAlert();
+                    },10000);
+                }else{
+                    console.log('there was an error while uploading your files, try again later');
+                }              
+            }else{
+                alert('You havent selected any files')
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+</body>
+</html>
